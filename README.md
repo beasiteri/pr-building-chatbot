@@ -23,7 +23,7 @@ cd <project-name>
 bun init
 ```
 
-Select the **Blank** project template
+Select the **Blank** project template.
 
 Enable workspaces in **package.json**:
 ```bash
@@ -134,10 +134,62 @@ Import Tailwind in **index.css**:
 ```
 
 ## shadcn/ui
+Modify the **tsconfig.json** and the **tsconfig.app.json** (client):
+```bash
+ "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
+```
+
+Install **types/node** (client):
+```bash
+bun add -D @types/node
+```
+
+Modify the **vite.config.ts** (client):
+```bash
+import path from 'path'
+...
+resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    }
+  },
+```
+
+Initialize **shadcn** (client):
 ```bash
 cd packages/client
 bunx --bun shadcn@latest init
+```
+
+**What This Does**
+- Creates a **components.json** file in the client folder
+  - Tracks installed components
+  - Managed internally by the CLI (do not modify manually)
+- Updates **index.css** with additional theme configuration
+
+**Installing Components**
+Browse available components at:
+https://ui.shadcn.com/docs/components
+
+Example: Install a Button component:
+```bash
 bunx --bun shadcn@latest add button
+```
+
+**Usage**
+Import the component:
+```bash
+import { Button } from './components/ui/button';
+```
+
+Use it in your JSX:
+```bash
+<Button>Click me</Button>
 ```
 
 ## Prettier
