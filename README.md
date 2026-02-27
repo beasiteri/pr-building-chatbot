@@ -23,7 +23,7 @@ cd <project-name>
 bun init
 ```
 
-Enable workspaces in package.json::
+Enable workspaces in package.json:
 ```bash
 "workspaces": ["packages/*"]
 ```
