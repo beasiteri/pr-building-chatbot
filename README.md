@@ -98,7 +98,7 @@ Add script in root package.json:
 }
 ```
 
-Run both:
+Run both (root):
 ```bash
 bun run dev
 ```
