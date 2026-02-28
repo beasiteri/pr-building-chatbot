@@ -46,7 +46,7 @@ app.post('/api/chat', async (req: Request, res: Response) => {
    const { prompt, conversationId } = req.body;
 
    const response = await client.responses.create({
-      model: 'gpt-4o-mini',
+      model: 'gpt-4o-mini!',
       input: prompt,
       temperature: 0.2,
       max_output_tokens: 100,
