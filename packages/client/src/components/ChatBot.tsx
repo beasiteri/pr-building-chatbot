@@ -21,18 +21,19 @@ type Message = {
 const ChatBot = () => {
    const [messages, setMessages] = useState<Message[]>([]);
    const [isBotTyping, setIsBotTyping] = useState(false);
-   const formRef = useRef<HTMLFormElement | null>(null);
    const [conversationId] = useState(() => crypto.randomUUID());
    const { register, handleSubmit, reset, formState } = useForm<FormData>();
+   const lastMessageRed = useRef<HTMLDivElement | null>(null);
+   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
    useEffect(() => {
-      formRef.current?.scrollIntoView({ behavior: 'smooth' });
+      lastMessageRed.current?.scrollIntoView({ behavior: 'smooth' });
    }, [messages]);
 
    const onSubmit = async ({ prompt }: FormData) => {
       setMessages((prev) => [...prev, { content: prompt, role: 'user' }]);
       setIsBotTyping(true);
-      reset();
+      reset({ prompt: '' });
 
       const { data } = await axios.post<ChatResponse>('/api/chat', {
          prompt,
@@ -58,16 +59,30 @@ const ChatBot = () => {
       }
    };
 
+   const handleResize = () => {
+      const textarea = textareaRef.current;
+      if (!textarea) return;
+
+      textarea.style.height = 'auto';
+
+      const maxHeight = 150;
+      textarea.style.height = `${Math.min(textarea.scrollHeight, maxHeight)}px`;
+
+      textarea.style.overflowY =
+         textarea.scrollHeight > maxHeight ? 'auto' : 'hidden';
+   };
+
    return (
-      <div>
-         <div className="flex flex-col gap-3 mb-10">
+      <div className="flex flex-col h-full">
+         <div className="flex flex-col flex-1 gap-3 mb-10 overflow-y-auto">
             {messages.map((message, index) => (
                <div
                   key={index}
                   onCopy={onCopyMessage}
-                  className={`px-3 py-1 rounded-xl ${
+                  ref={index === messages.length - 1 ? lastMessageRed : null}
+                  className={`px-3 py-1 rounded-xl break-words ${
                      message.role === 'user'
-                        ? 'bg-blue-600 text-white self-end'
+                        ? 'bg-blue-600 text-white self-end max-w-[600px]'
                         : 'bg-gray-100 text-black self-start'
                   }`}
                >
@@ -86,7 +101,6 @@ const ChatBot = () => {
          <form
             onSubmit={handleSubmit(onSubmit)}
             onKeyDown={onKeyDown}
-            ref={formRef}
             className="flex flex-col gap-2 items-end border-2 p-4 rounded-3xl"
          >
             <textarea
@@ -94,7 +108,13 @@ const ChatBot = () => {
                   required: true,
                   validate: (data) => data.trim().length > 0,
                })}
+               ref={(e) => {
+                  register('prompt').ref(e);
+                  textareaRef.current = e;
+               }}
+               onInput={handleResize}
                className="w-full border-0 focus:outline-0 resize-none placeholder:text-gray-400"
+               autoFocus
                placeholder="Ask anything"
                maxLength={1000}
             />
